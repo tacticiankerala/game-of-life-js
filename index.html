@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+</html>
+  <head>
+    <title>GameOfLife</title>
+  </head>
+  <style>
+   div.row {
+     overflow: auto;
+   }
+   div.cell {
+     width: 50px;
+     height: 50px;
+     background: #00DD00;
+     border: 1px solid #333;
+     float: left;
+   }
+   div.cell.live {
+     background: url('mario_resize.png') no-repeat center center #00DD00;
+   }
+  </style>
+  <script type="text/javascript" src="my-game-of-life.js"></script>
+  <script type="text/javascript" src="randomColor.js"></script>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <body>
+    <div id="canvas"></div>
+    
+
+    <script>
+     $(function(){
+       var boardConfiguration = [
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+       ];
+       var board = new Board(boardConfiguration);
+
+       board.boardConfiguration.forEach(function(row, rowIndex){
+         var rowDOM = $('<div class="row"></div>').addClass('row' + rowIndex);
+         row.forEach(function(column, columnIndex){
+           var columnDOM = $('<div class="cell"></div>').addClass('column' + columnIndex);
+           if(board.getCellAt(rowIndex, columnIndex).isAlive()){
+             columnDOM.addClass('live');
+           }
+           rowDOM.append(columnDOM);
+         });
+         $('#canvas').append(rowDOM);
+       });
+       
+       var update = function(){
+         board.boardConfiguration.forEach(function(row, rowIndex){
+           row.forEach(function(column, columnIndex){
+             var cell = board.getCellAt(rowIndex, columnIndex)
+             var cellDOM = $('div.row' + rowIndex).find('div.column' + columnIndex);
+             if(!CellFateDecider.willSurvive(cell)){
+               board.killCellAt(rowIndex, columnIndex);
+               cellDOM.removeClass('live');
+             }else{
+               board.giveLifeAt(rowIndex, columnIndex);
+               cellDOM.addClass('live');
+             }
+             $('div.cell').css('backgroundColor', randomColor({luminosity: 'light'}));
+           });
+           console.log('updating..');
+         });
+       };
+       window.setInterval(update, 1000);
+     });
+    </script>
+
+  </body>
+</html>
